@@ -1,34 +1,53 @@
 # 秒感 · 像素读秒挑战
 
-一个响应式像素风读秒游戏，使用 HTML、CSS 和原生 JavaScript，不需要 npm 安装或构建。
+响应式像素风读秒游戏。Vite + TypeScript 构建，Cloudflare Workers Static Assets 部署。
 
-## 本地运行
-
-解压后进入 `second-sense` 文件夹，在终端运行：
+## 快速开始
 
 ```sh
-python3 -m http.server 8080
+nvm use || true
+npm ci
+npm run dev
 ```
 
-浏览器访问 http://localhost:8080 。Windows 也可使用 `py -m http.server 8080`。
+访问 http://localhost:8080 。
 
-## 文件
+## 命令
 
-- `index.html`：页面结构、文案和控件。
-- `styles.css`：像素风界面、红色数码管、像素按钮和响应式布局。
-- `game.js`：目标选择、计时、评分、当前会话统计和键盘操作。
-- `sounds.js`：Web Audio 合成音效、静音开关和音效设置记忆。
-- `zpix.woff2`：中文像素字体。
-- `font-license.txt`：第三方字体来源和授权说明。
+- `npm run dev`：本地开发
+- `npm run build`：类型检查 + 生产构建（输出 `dist/`）
+- `npm run check`：ESLint + Prettier 检查 + Vitest 单元测试
+- `npm run deploy`：构建并发布到 Cloudflare
 
-## 操作
+低频操作直接用 `npx`：`npx vite preview`、`npx prettier --write .`、`npx playwright test`。
 
-选择 3、5 或 10 秒，点击红色按钮或按空格键开始，再次点击或按空格键停止。计时过程中隐藏时间；停止后显示实际用时、误差和得分。音效开关位于右上角，设置仅保存在当前浏览器。成绩统计在刷新后重置。
+## 结构
 
-## 自行部署
+- `index.html`：入口
+- `src/main.ts`：DOM 装配、计时流程
+- `src/game/scoring.ts`：得分、文案、误差纯函数
+- `src/game/display.ts`：七段数码管渲染
+- `src/audio/synth.ts`：Web Audio 合成音效
+- `src/styles.css`：像素界面样式
+- `public/zpix.woff2`：中文像素字体
+- `public/_headers`：缓存与安全头
+- `tests/unit`：Vitest
+- `tests/e2e`：Playwright
+- `wrangler.jsonc`：Cloudflare Workers 静态资源配置
 
-将此文件夹内全部文件上传到支持静态网站的服务器或托管平台，入口文件是 `index.html`。无需后端、数据库或 API 密钥。音效由浏览器合成，无需额外音频文件。
+## 部署（Cloudflare Workers Static Assets）
+
+1. 登录：`npx wrangler login`
+2. 构建验证：`npm run build`
+3. 发布：`npm run deploy`
+4. 在 Dashboard → Workers & Pages 连接 Git 仓库，开启 Workers Builds 实现 push 自动部署。
+
+配置说明见 `wrangler.jsonc`，静态目录为 `dist/`，`not_found_handling` 为 `404-page`。
+
+## 玩法
+
+选择 3、5 或 10 秒，点击红色按钮或按空格开始，再次点击或按空格停止。计时中隐藏时间；停止后显示实际用时、误差和得分。音效开关在右上角，仅保存在当前浏览器。统计在刷新后重置。
 
 ## 字体授权
 
-Zpix 最像素由 SolidZORO 制作，当前附带的是未修改的官方字体。作者允许个人和教育产品免费使用，商业产品需要另行授权，具体见 `font-license.txt` 和 https://github.com/SolidZORO/zpix-pixel-font 。
+Zpix 最像素由 SolidZORO 制作，附带未修改官方字体。个人和教育产品免费，商业产品需另行授权。见 `public/font-license.txt` 和 https://github.com/SolidZORO/zpix-pixel-font 。
