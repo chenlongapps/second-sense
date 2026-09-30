@@ -1,10 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { setLocale } from "../../src/i18n";
 import {
   displayAriaLabel,
   renderDigit,
   renderDisplayHtml,
   splitDisplayValues,
 } from "../../src/game/display";
+
+// 文案取自当前语言，这里按简体中文断言。
+beforeEach(() => {
+  setLocale("zh-CN");
+});
 
 describe("splitDisplayValues", () => {
   it("splits seconds into MM / SS / CC", () => {

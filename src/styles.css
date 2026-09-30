@@ -13,7 +13,10 @@
   --muted: #5b636c;
   --line: #c6ccd2;
   --red: #f3333d;
-  font-family: Zpix, "PingFang SC", monospace;
+  /* 拉丁和中文走 Zpix；日文、韩文等缺字时按顺序回退，不会露出豆腐块。 */
+  font-family:
+    Zpix, "PingFang SC", "Hiragino Kaku Gothic ProN", "Apple SD Gothic Neo", "Malgun Gothic",
+    monospace;
   font-size: 16px;
   color: var(--ink);
   background: var(--paper);
@@ -258,6 +261,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 19px;
 }
@@ -315,7 +319,8 @@ h1 {
 .display-top {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -943,6 +948,126 @@ footer {
   align-items: center;
   gap: 18px;
 }
+.locale-switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.locale-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: #f9fafb;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 #aab2bc;
+  min-height: 42px;
+  padding: 8px 10px;
+  white-space: nowrap;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease,
+    box-shadow 0.12s ease,
+    color 0.15s ease;
+}
+.locale-toggle:hover {
+  background: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #aab2bc;
+}
+.locale-toggle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #aab2bc;
+}
+.locale-toggle[aria-expanded="true"] {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 2px 2px 0 var(--red);
+}
+.locale-toggle[aria-expanded="true"]:hover {
+  background: var(--ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--red);
+}
+.locale-caret {
+  flex: none;
+  width: 9px;
+  height: 6px;
+  fill: currentColor;
+  transition: transform 0.12s ease;
+}
+.locale-toggle[aria-expanded="true"] .locale-caret {
+  transform: rotate(180deg);
+}
+.locale-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  max-width: calc(100vw - 28px);
+  background: #f9fafb;
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  animation: locale-menu-in 0.14s ease-out both;
+}
+.locale-menu[hidden] {
+  display: none;
+}
+@keyframes locale-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.locale-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid transparent;
+  box-shadow: 2px 2px 0 #d6dce3;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease,
+    box-shadow 0.12s ease;
+}
+.locale-option::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  background: transparent;
+}
+.locale-option:hover,
+.locale-option.is-active {
+  background: #eceff3;
+  border-color: var(--ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #aab2bc;
+}
+.locale-option[aria-selected="true"] {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 2px 2px 0 var(--red);
+}
+.locale-option[aria-selected="true"]::after {
+  background: var(--red);
+}
 .sound-toggle {
   display: flex;
   align-items: center;
@@ -1002,6 +1127,20 @@ footer {
   .sound-toggle {
     padding: 8px;
     font-size: 14px;
+  }
+  .locale-toggle {
+    min-height: 40px;
+    padding: 8px;
+    font-size: 12px;
+    gap: 5px;
+  }
+  .locale-menu {
+    gap: 3px;
+    padding: 4px;
+  }
+  .locale-option {
+    padding: 8px;
+    font-size: 12px;
   }
 }
 /* 整秒命中：全屏庆祝 */

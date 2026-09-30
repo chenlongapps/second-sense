@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { formatSeconds, toCentiseconds } from "./time";
 
 export const SEGMENTS: Record<string, string> = {
@@ -40,6 +41,6 @@ export function renderDisplayHtml(seconds: number, hidden = false): string {
 }
 
 export function displayAriaLabel(seconds: number, hidden = false): string {
-  if (hidden) return "计时中，时间已隐藏";
-  return `${formatSeconds(seconds)} 秒`;
+  if (hidden) return t("display.ariaHidden");
+  return t("display.seconds", { value: formatSeconds(seconds) });
 }

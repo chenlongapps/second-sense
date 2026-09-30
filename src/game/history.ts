@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { diffCentiseconds, formatSeconds } from "./time";
 
 export interface HistoryEntry {
@@ -13,13 +14,14 @@ export function addHistoryEntry(list: HistoryEntry[], entry: HistoryEntry): Hist
 
 export function formatDiffText(target: number, actual: number): string {
   const diff = diffCentiseconds(target, actual);
-  if (diff === 0) return "刚刚好";
+  if (diff === 0) return t("history.diffExact");
   const abs = (Math.abs(diff) / 100).toFixed(2);
-  return diff < 0 ? `提前 ${abs} 秒` : `超出 ${abs} 秒`;
+  return diff < 0 ? t("history.diffEarly", { value: abs }) : t("history.diffLate", { value: abs });
 }
 
+/** 只带数值和单位的用时，历史记录和庆祝浮层都用它。 */
 export function formatActualText(actual: number): string {
-  return `${formatSeconds(actual)} 秒`;
+  return t("display.seconds", { value: formatSeconds(actual) });
 }
 
 export function diffKind(target: number, actual: number): "early" | "late" | "exact" {

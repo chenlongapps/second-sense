@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 export type SoundName = "select" | "start" | "stop" | "victory" | "near-one" | "near-two" | "tease";
 
 type Cue = [frequency: number, offsetSeconds: number, durationSeconds: number, volume: number];
@@ -74,12 +76,16 @@ export class GameAudio {
     toggle.setAttribute(
       "aria-label",
       !this.AudioContextClass
-        ? "当前浏览器不支持音效"
+        ? t("sound.ariaUnavailable")
         : on
-          ? "音效已开启，点击静音"
-          : "音效已关闭，点击开启",
+          ? t("sound.ariaOn")
+          : t("sound.ariaOff"),
     );
-    label.textContent = !this.AudioContextClass ? "音效不可用" : on ? "音效 开" : "音效 关";
+    label.textContent = !this.AudioContextClass
+      ? t("sound.labelUnavailable")
+      : on
+        ? t("sound.labelOn")
+        : t("sound.labelOff");
     toggle.classList.toggle("muted", !on);
     toggle.disabled = !this.AudioContextClass;
   }

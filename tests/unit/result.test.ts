@@ -1,10 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { setLocale } from "../../src/i18n";
 import {
   classifyResult,
   getEasterEgg,
   resetTeaseRotation,
   TEASE_DEVIATION_PERCENT,
 } from "../../src/game/result";
+
+// 彩蛋文案取自当前语言，这里按简体中文断言。
+beforeEach(() => {
+  setLocale("zh-CN");
+});
 
 describe.each([3, 5, 10])("results for a %i second target", (target) => {
   it("celebrates the selected target, not an arbitrary whole second", () => {
