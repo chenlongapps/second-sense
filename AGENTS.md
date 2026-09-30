@@ -2,6 +2,10 @@
 
 单页像素风时间感游戏。使用 Vite + TypeScript，无后端。`index.html` → `src/main.ts`（负责所有 DOM 绑定和计时流程）；七段数码管渲染位于 `src/game/display.ts`，Web Audio 合成器位于 `src/audio/synth.ts`。
 
+`src/game/` 下的其它模块：`time.ts`（百分之一秒精度与误差）、`result.ts`（彩蛋分级与文案）、`history.ts`（近五次记录）、`cheat.ts`（连点外挂规则：`CHEAT_CLICKS = 5`、`CHEAT_WINDOW_MS = 1000`）。
+
+外挂局实现：`src/main.ts` 的 `startCheatTracking()` / `stopCheatTracking()` 在外挂回合中驱动数码管实时显示（每 `CHEAT_TICK_MS` 刷新一次，不使用 `hidden` 遮挡），到目标秒数自动调用 `stop()`。`stop()`、`cancel()` 和切走页面都会清理计时循环，因此外挂只生效一局。
+
 ## 命令
 
 - 环境设置：`nvm use`（Node 20，`engines: >=20`）、`npm ci`、`npm run dev`（端口 **8080**，不是 Vite 默认端口）。

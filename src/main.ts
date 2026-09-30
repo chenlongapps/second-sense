@@ -1,5 +1,11 @@
 import "./styles.css";
 import { GameAudio, type SoundName } from "./audio/synth";
+import {
+  advanceCheatStreak,
+  emptyCheatStreak,
+  isCheatTriggered,
+  type CheatStreak,
+} from "./game/cheat";
 import { displayAriaLabel, renderDisplayHtml } from "./game/display";
 import {
   addHistoryEntry,
@@ -12,6 +18,8 @@ import { getEasterEgg, type EasterEgg, type EasterEggKind } from "./game/result"
 
 const MAX_ROUND_SECONDS = 60;
 const VICTORY_OVERLAY_MS = 2000;
+const CHEAT_TICK_MS = 1000 / 60;
+const CHEAT_CAPTION = "外挂：数码管实时可见，到点自动停。";
 const CONFETTI_COUNT = 40;
 const CONFETTI_COLORS = ["#ffcf66", "#f3333d", "#fff0c6", "#ff8f70", "#8fd3ff", "#ffffff"];
 const RESULT_SOUNDS: Record<EasterEggKind, SoundName> = {
@@ -76,6 +84,35 @@ let overlayTimerId: number | undefined;
 let overlayReturnFocus: HTMLElement | null = null;
 let hasPlayed = false;
 let history: HistoryEntry[] = [];
+let cheatStreak: CheatStreak = emptyCheatStreak();
+let cheatRunning = false;
+let cheatTickId: number | undefined;
+let cheatStopId: number | undefined;
+
+function startCheatTracking(): void {
+  stopCheatTracking();
+  cheatRunning = true;
+  statusEl.textContent = "外挂计时中";
+  dialCaption.textContent = CHEAT_CAPTION;
+  cheatStopId = window.setTimeout(
+    stop,
+    Math.max(0, target * 1000 - (performance.now() - startedAt)),
+  );
+  const tick = (): void => {
+    if (!cheatRunning) return;
+    renderDisplay((performance.now() - startedAt) / 1000);
+    cheatTickId = window.setTimeout(tick, CHEAT_TICK_MS);
+  };
+  tick();
+}
+
+function stopCheatTracking(): void {
+  cheatRunning = false;
+  window.clearTimeout(cheatTickId);
+  window.clearTimeout(cheatStopId);
+  cheatTickId = undefined;
+  cheatStopId = undefined;
+}
 
 function renderDisplay(seconds: number, hidden = false): void {
   dialNumber.innerHTML = renderDisplayHtml(seconds, hidden);
@@ -204,17 +241,21 @@ function setRunningUI(active: boolean): void {
 
 function start(): void {
   running = true;
+  const cheat = isCheatTriggered(cheatStreak);
+  cheatStreak = emptyCheatStreak();
   startedAt = performance.now();
   noticeEl.textContent = "";
   setRunningUI(true);
   audio.play("start");
   timeoutId = window.setTimeout(() => cancel("已超过 60 秒。"), MAX_ROUND_SECONDS * 1000);
+  if (cheat) startCheatTracking();
 }
 
 function stop(): void {
   const elapsed = (performance.now() - startedAt) / 1000;
   running = false;
   window.clearTimeout(timeoutId);
+  stopCheatTracking();
   hasPlayed = true;
   history = addHistoryEntry(history, { target, actual: elapsed });
   setRunningUI(false);
@@ -234,6 +275,7 @@ function cancel(message: string): void {
   audio.silence();
   running = false;
   window.clearTimeout(timeoutId);
+  stopCheatTracking();
   setRunningUI(false);
   noticeEl.textContent = message;
 }
@@ -247,14 +289,18 @@ for (const button of targets) {
   button.addEventListener("click", () => {
     if (running) return;
     audio.play("select");
-    target = Number(button.dataset.seconds);
+    const seconds = Number(button.dataset.seconds);
+    cheatStreak = advanceCheatStreak(cheatStreak, seconds, performance.now());
+    const cheat = isCheatTriggered(cheatStreak);
+    target = seconds;
     for (const option of targets) {
       const selected = option === button;
       option.classList.toggle("active", selected);
       option.setAttribute("aria-pressed", String(selected));
     }
-    noticeEl.textContent = "";
     setRunningUI(false);
+    if (cheat) start();
+    else noticeEl.textContent = "";
   });
 }
 
