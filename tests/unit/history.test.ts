@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { addHistoryEntry, diffKind, formatDiffText, MAX_HISTORY } from "../../src/game/history";
+import {
+  addHistoryEntry,
+  diffKind,
+  formatActualText,
+  formatDiffText,
+  MAX_HISTORY,
+} from "../../src/game/history";
 
 describe("addHistoryEntry", () => {
   it("prepends newest entries first", () => {
@@ -26,6 +32,22 @@ describe("formatDiffText", () => {
     expect(formatDiffText(3, 3.06)).toBe("超出 0.06 秒");
     expect(formatDiffText(5, 5.0)).toBe("刚刚好");
   });
+
+  it("agrees with the rounded display, including small early misses", () => {
+    expect(formatDiffText(5, 4.999)).toBe("刚刚好");
+    expect(formatDiffText(5, 5.004)).toBe("刚刚好");
+    expect(formatDiffText(5, 4.99)).toBe("提前 0.01 秒");
+    expect(formatDiffText(5, 5.01)).toBe("超出 0.01 秒");
+    expect(formatDiffText(5, 4.98)).toBe("提前 0.02 秒");
+    expect(formatDiffText(5, 5.015)).toBe("超出 0.02 秒");
+  });
+});
+
+describe("formatActualText", () => {
+  it("formats the same rounded time as the display", () => {
+    expect(formatActualText(4.999)).toBe("5.00 秒");
+    expect(formatActualText(5.015)).toBe("5.02 秒");
+  });
 });
 
 describe("diffKind", () => {
@@ -33,5 +55,8 @@ describe("diffKind", () => {
     expect(diffKind(5, 4.87)).toBe("early");
     expect(diffKind(3, 3.06)).toBe("late");
     expect(diffKind(5, 5.0)).toBe("exact");
+    expect(diffKind(5, 4.999)).toBe("exact");
+    expect(diffKind(5, 5.004)).toBe("exact");
+    expect(diffKind(5, 4.99)).toBe("early");
   });
 });

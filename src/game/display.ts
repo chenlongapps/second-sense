@@ -1,3 +1,5 @@
+import { formatSeconds, toCentiseconds } from "./time";
+
 export const SEGMENTS: Record<string, string> = {
   "0": "abcdef",
   "1": "bc",
@@ -16,8 +18,7 @@ const SEGMENT_ORDER = ["a", "b", "c", "d", "e", "f", "g"] as const;
 
 export function splitDisplayValues(seconds: number, hidden = false): [string, string, string] {
   if (hidden) return ["--", "--", "--"];
-  const safeSeconds = Math.max(0, seconds);
-  const centiseconds = Math.floor(safeSeconds * 100);
+  const centiseconds = toCentiseconds(seconds);
   const minutes = String(Math.floor(centiseconds / 6000)).padStart(2, "0");
   const secs = String(Math.floor(centiseconds / 100) % 60).padStart(2, "0");
   const cs = String(centiseconds % 100).padStart(2, "0");
@@ -40,5 +41,5 @@ export function renderDisplayHtml(seconds: number, hidden = false): string {
 
 export function displayAriaLabel(seconds: number, hidden = false): string {
   if (hidden) return "计时中，时间已隐藏";
-  return `${seconds.toFixed(2)} 秒`;
+  return `${formatSeconds(seconds)} 秒`;
 }

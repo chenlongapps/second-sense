@@ -1,5 +1,5 @@
 import "./styles.css";
-import { GameAudio } from "./audio/synth";
+import { GameAudio, type SoundName } from "./audio/synth";
 import { displayAriaLabel, renderDisplayHtml } from "./game/display";
 import {
   addHistoryEntry,
@@ -8,8 +8,20 @@ import {
   formatDiffText,
   type HistoryEntry,
 } from "./game/history";
+import { getEasterEgg, type EasterEgg, type EasterEggKind } from "./game/result";
 
 const MAX_ROUND_SECONDS = 60;
+const VICTORY_OVERLAY_MS = 2000;
+const CONFETTI_COUNT = 40;
+const CONFETTI_COLORS = ["#ffcf66", "#f3333d", "#fff0c6", "#ff8f70", "#8fd3ff", "#ffffff"];
+const RESULT_SOUNDS: Record<EasterEggKind, SoundName> = {
+  perfect: "victory",
+  "near-one": "near-one",
+  "near-two": "near-two",
+  "too-early": "tease",
+  "too-late": "tease",
+  wild: "tease",
+};
 
 function getElement<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -31,6 +43,16 @@ const soundToggle = getElement<HTMLButtonElement>("sound-toggle");
 const soundLabel = getElement<HTMLElement>("sound-label");
 const historyList = getElement<HTMLOListElement>("history-list");
 const historyEmpty = getElement<HTMLElement>("history-empty");
+const easterEggEl = getElement<HTMLElement>("easter-egg");
+const easterEggTitle = getElement<HTMLElement>("easter-egg-title");
+const easterEggMessage = getElement<HTMLElement>("easter-egg-message");
+const easterEggDiff = getElement<HTMLElement>("easter-egg-diff");
+const pixelSparks = getElement<HTMLElement>("pixel-sparks");
+const victoryOverlay = getElement<HTMLDivElement>("victory-overlay");
+const victoryTitle = getElement<HTMLElement>("victory-title");
+const victoryTime = getElement<HTMLElement>("victory-time");
+const victoryMessage = getElement<HTMLElement>("victory-message");
+const victoryConfetti = getElement<HTMLElement>("victory-confetti");
 
 const AudioContextClass =
   window.AudioContext ??
@@ -50,6 +72,8 @@ let target = 5;
 let running = false;
 let startedAt = 0;
 let timeoutId: number | undefined;
+let overlayTimerId: number | undefined;
+let overlayReturnFocus: HTMLElement | null = null;
 let hasPlayed = false;
 let history: HistoryEntry[] = [];
 
@@ -83,7 +107,89 @@ function renderHistory(): void {
   }
 }
 
+function clearEasterEgg(): void {
+  easterEggEl.hidden = true;
+  easterEggTitle.textContent = "";
+  easterEggMessage.textContent = "";
+  easterEggDiff.textContent = "";
+  delete easterEggEl.dataset.kind;
+  delete dial.dataset.result;
+  pixelSparks.replaceChildren();
+  dialCaption.hidden = false;
+  clearVictoryOverlay();
+}
+
+function revealEasterEgg(egg: EasterEgg, elapsed: number): void {
+  easterEggTitle.textContent = egg.title;
+  easterEggMessage.textContent = egg.message;
+  easterEggDiff.textContent = formatDiffText(target, elapsed);
+  easterEggEl.dataset.kind = egg.kind;
+  dial.dataset.result = egg.kind;
+  dialCaption.hidden = true;
+  easterEggEl.hidden = false;
+
+  const sparkCount = egg.kind === "perfect" ? 24 : egg.kind === "near-one" ? 8 : 0;
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < sparkCount; i += 1) {
+    const spark = document.createElement("i");
+    spark.className = "pixel-spark";
+    spark.style.left = `${8 + ((i * 37) % 84)}%`;
+    spark.style.top = `${20 + ((i * 13) % 40)}%`;
+    spark.style.setProperty("--drift", `${((i * 19) % 80) - 40}px`);
+    spark.style.setProperty("--delay", `${(i % 6) * 45}ms`);
+    fragment.append(spark);
+  }
+  pixelSparks.append(fragment);
+}
+
+function clearVictoryOverlay(): void {
+  window.clearTimeout(overlayTimerId);
+  overlayTimerId = undefined;
+  victoryOverlay.hidden = true;
+  document.body.classList.remove("celebrating");
+  victoryConfetti.replaceChildren();
+  if (overlayReturnFocus) {
+    overlayReturnFocus.focus();
+    overlayReturnFocus = null;
+  }
+}
+
+function confettiPiece(index: number): HTMLElement {
+  const piece = document.createElement("i");
+  piece.className = "victory-bit";
+  piece.style.left = `${(index * 29) % 100}%`;
+  piece.style.setProperty("--fall", `${60 + ((index * 17) % 40)}vh`);
+  piece.style.setProperty("--drift", `${((index * 31) % 61) - 30}px`);
+  piece.style.setProperty("--spin", `${((index * 53) % 14) + 6}deg`);
+  piece.style.setProperty("--delay", `${(index % 8) * 90}ms`);
+  piece.style.setProperty("--color", CONFETTI_COLORS[index % CONFETTI_COLORS.length]!);
+  return piece;
+}
+
+function showVictoryOverlay(egg: EasterEgg, elapsed: number): void {
+  victoryTitle.textContent = egg.title;
+  victoryTime.textContent = formatActualText(elapsed);
+  victoryMessage.textContent = egg.message;
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < CONFETTI_COUNT; i += 1) fragment.append(confettiPiece(i));
+  victoryConfetti.replaceChildren(fragment);
+  victoryOverlay.hidden = false;
+  document.body.classList.add("celebrating");
+  overlayReturnFocus =
+    document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  victoryOverlay.focus();
+  window.clearTimeout(overlayTimerId);
+  overlayTimerId = window.setTimeout(clearVictoryOverlay, VICTORY_OVERLAY_MS);
+}
+
+function dismissVictoryOverlay(): void {
+  if (victoryOverlay.hidden) return;
+  audio.silence();
+  clearVictoryOverlay();
+}
+
 function setRunningUI(active: boolean): void {
+  clearEasterEgg();
   for (const button of targets) button.disabled = active;
   document.body.classList.toggle("is-running", active);
   dial.classList.toggle("running", active);
@@ -117,7 +223,10 @@ function stop(): void {
   dialCaption.textContent = "本轮结束。";
   renderDisplay(elapsed);
   renderHistory();
-  audio.play("stop");
+  const egg = getEasterEgg(target, elapsed);
+  if (egg) revealEasterEgg(egg, elapsed);
+  audio.play(egg ? RESULT_SOUNDS[egg.kind] : "stop");
+  if (egg?.kind === "perfect") showVictoryOverlay(egg, elapsed);
 }
 
 function cancel(message: string): void {
@@ -150,13 +259,22 @@ for (const button of targets) {
 }
 
 actionButton.addEventListener("click", act);
+victoryOverlay.addEventListener("click", dismissVictoryOverlay);
 
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !victoryOverlay.hidden) {
+    dismissVictoryOverlay();
+    return;
+  }
   if ((event.target as HTMLElement | null)?.closest?.("#sound-toggle")) return;
   if (event.code !== "Space" || event.altKey || event.ctrlKey || event.metaKey) return;
   const t = event.target as HTMLElement | null;
   if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
   event.preventDefault();
+  if (!victoryOverlay.hidden) {
+    dismissVictoryOverlay();
+    return;
+  }
   if (!event.repeat) act();
 });
 
@@ -164,6 +282,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     audio.silence();
     cancel("页面切换，本轮不计。");
+    clearVictoryOverlay();
   }
 });
 

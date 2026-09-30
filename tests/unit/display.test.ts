@@ -16,8 +16,12 @@ describe("splitDisplayValues", () => {
     expect(splitDisplayValues(5, true)).toEqual(["--", "--", "--"]);
   });
 
-  it("floors to centiseconds like the legacy renderer", () => {
-    expect(splitDisplayValues(5.999)).toEqual(["00", "05", "99"]);
+  it("rounds to the same centiseconds used by history and easter eggs", () => {
+    expect(splitDisplayValues(4.999)).toEqual(["00", "05", "00"]);
+    expect(splitDisplayValues(5.015)).toEqual(["00", "05", "02"]);
+    expect(splitDisplayValues(5.999)).toEqual(["00", "06", "00"]);
+    expect(splitDisplayValues(59.999)).toEqual(["01", "00", "00"]);
+    expect(splitDisplayValues(-1)).toEqual(["00", "00", "00"]);
   });
 });
 
@@ -44,5 +48,7 @@ describe("displayAriaLabel", () => {
   it("announces hidden time while running", () => {
     expect(displayAriaLabel(5, true)).toBe("计时中，时间已隐藏");
     expect(displayAriaLabel(5.234)).toBe("5.23 秒");
+    expect(displayAriaLabel(4.999)).toBe("5.00 秒");
+    expect(displayAriaLabel(5.015)).toBe("5.02 秒");
   });
 });

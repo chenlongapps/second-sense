@@ -1,4 +1,4 @@
-export type SoundName = "select" | "start" | "stop";
+export type SoundName = "select" | "start" | "stop" | "victory" | "near-one" | "near-two" | "tease";
 
 type Cue = [frequency: number, offsetSeconds: number, durationSeconds: number, volume: number];
 
@@ -9,6 +9,26 @@ const CUES: Record<SoundName, Cue[]> = {
     [784, 0.06, 0.075, 0.045],
   ],
   stop: [[220, 0, 0.045, 0.04]],
+  victory: [
+    [523, 0, 0.09, 0.04],
+    [659, 0.08, 0.09, 0.04],
+    [784, 0.16, 0.09, 0.04],
+    [1047, 0.24, 0.12, 0.045],
+    [988, 0.38, 0.1, 0.04],
+    [1047, 0.5, 0.1, 0.045],
+    [1319, 0.62, 0.14, 0.05],
+    [1047, 0.8, 0.18, 0.045],
+  ],
+  "near-one": [
+    [784, 0, 0.065, 0.035],
+    [1047, 0.075, 0.1, 0.035],
+  ],
+  "near-two": [[659, 0, 0.09, 0.035]],
+  tease: [
+    [294, 0, 0.065, 0.035],
+    [220, 0.075, 0.065, 0.035],
+    [147, 0.15, 0.1, 0.035],
+  ],
 };
 
 const STORAGE_KEY = "second-sense-sound";

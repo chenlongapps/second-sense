@@ -62,6 +62,7 @@
                 </div>
               </div>
               <div class="display-housing" id="dial">
+                <div id="pixel-sparks" class="pixel-sparks" aria-hidden="true"></div>
                 <div class="display-top">
                   <span id="dial-label">目标时间</span
                   ><span id="status" aria-live="polite">准备就绪</span>
@@ -78,6 +79,13 @@
               </div>
               <div class="control-area">
                 <p id="dial-caption" class="control-prompt">点击开始。</p>
+                <div id="easter-egg" class="easter-egg" role="status" hidden>
+                  <div class="easter-egg-heading">
+                    <span id="easter-egg-title" class="easter-egg-title"></span>
+                    <span id="easter-egg-diff" class="easter-egg-diff"></span>
+                  </div>
+                  <p id="easter-egg-message" class="easter-egg-message"></p>
+                </div>
                 <div class="button-base">
                   <button type="button" id="action" class="action" aria-labelledby="action-label">
                     <span class="button-cap"
@@ -99,6 +107,23 @@
         </div>
       </main>
       <footer><span>SECOND SENSE / 01</span></footer>
+    </div>
+    <div
+      id="victory-overlay"
+      class="victory-overlay"
+      role="status"
+      aria-live="polite"
+      tabindex="-1"
+      hidden
+    >
+      <div id="victory-confetti" class="victory-confetti" aria-hidden="true"></div>
+      <div id="victory-card" class="victory-card">
+        <p class="victory-kicker" aria-hidden="true">PERFECT</p>
+        <p id="victory-title" class="victory-title"></p>
+        <p id="victory-time" class="victory-time"></p>
+        <p id="victory-message" class="victory-message"></p>
+        <p class="victory-hint">点击画面 / 空格 / Esc 跳过</p>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
