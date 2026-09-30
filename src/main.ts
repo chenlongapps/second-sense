@@ -1,14 +1,15 @@
 import "./styles.css";
-import { GameAudio, scoreToSound } from "./audio/synth";
+import { GameAudio } from "./audio/synth";
 import { displayAriaLabel, renderDisplayHtml } from "./game/display";
 import {
-  MAX_ROUND_SECONDS,
-  calculateScore,
-  formatSignedError,
-  getAccuracyPosition,
-  getTimingText,
-  getVerdict,
-} from "./game/scoring";
+  addHistoryEntry,
+  diffKind,
+  formatActualText,
+  formatDiffText,
+  type HistoryEntry,
+} from "./game/history";
+
+const MAX_ROUND_SECONDS = 60;
 
 function getElement<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -26,13 +27,10 @@ const dialLabel = getElement<HTMLElement>("dial-label");
 const dialCaption = getElement<HTMLElement>("dial-caption");
 const statusEl = getElement<HTMLElement>("status");
 const noticeEl = getElement<HTMLElement>("notice");
-const roundBadge = getElement<HTMLElement>("round-badge");
-const resultBody = getElement<HTMLElement>("result-body");
-const bestEl = getElement<HTMLElement>("best");
-const averageEl = getElement<HTMLElement>("average");
-const countEl = getElement<HTMLElement>("count");
 const soundToggle = getElement<HTMLButtonElement>("sound-toggle");
 const soundLabel = getElement<HTMLElement>("sound-label");
+const historyList = getElement<HTMLOListElement>("history-list");
+const historyEmpty = getElement<HTMLElement>("history-empty");
 
 const AudioContextClass =
   window.AudioContext ??
@@ -52,61 +50,74 @@ let target = 5;
 let running = false;
 let startedAt = 0;
 let timeoutId: number | undefined;
-let rounds = 0;
-let best = 0;
-let totalError = 0;
+let hasPlayed = false;
+let history: HistoryEntry[] = [];
 
 function renderDisplay(seconds: number, hidden = false): void {
   dialNumber.innerHTML = renderDisplayHtml(seconds, hidden);
   dialNumber.setAttribute("aria-label", displayAriaLabel(seconds, hidden));
 }
 
+function renderHistory(): void {
+  historyList.textContent = "";
+  historyEmpty.hidden = history.length > 0;
+  for (const entry of history) {
+    const item = document.createElement("li");
+    item.className = "history-item";
+
+    const targetEl = document.createElement("span");
+    targetEl.className = "history-target";
+    targetEl.textContent = `目标 ${entry.target} 秒`;
+
+    const actualEl = document.createElement("span");
+    actualEl.className = "history-actual";
+    actualEl.textContent = `实际 ${formatActualText(entry.actual)}`;
+
+    const diffEl = document.createElement("span");
+    const kind = diffKind(entry.target, entry.actual);
+    diffEl.className = `history-diff ${kind}`;
+    diffEl.textContent = formatDiffText(entry.target, entry.actual);
+
+    item.append(targetEl, actualEl, diffEl);
+    historyList.append(item);
+  }
+}
+
 function setRunningUI(active: boolean): void {
   for (const button of targets) button.disabled = active;
+  document.body.classList.toggle("is-running", active);
   dial.classList.toggle("running", active);
   actionButton.classList.toggle("running", active);
-  actionLabel.textContent = active ? "停止计时" : rounds ? "再挑战一次" : "开始挑战";
+  actionLabel.textContent = active ? "停止计时" : hasPlayed ? "再挑战一次" : "开始挑战";
   actionGlyph.textContent = active ? "STOP" : "GO";
   statusEl.textContent = active ? "计时进行中" : "准备就绪";
   dialLabel.textContent = active ? `目标 ${target} 秒` : "目标时间";
   renderDisplay(target, active);
-  dialCaption.textContent = active ? "在心里读秒，到点按停止。" : "准备好了，就开始吧。";
+  dialCaption.textContent = active ? "计时中 · 凭感觉停止。" : "点击开始。";
 }
 
 function start(): void {
   running = true;
   startedAt = performance.now();
   noticeEl.textContent = "";
-  roundBadge.textContent = `ROUND ${String(rounds + 1).padStart(2, "0")}`;
   setRunningUI(true);
   audio.play("start");
-  timeoutId = window.setTimeout(
-    () => cancel("本轮已超过 60 秒。准备好后，再挑战一次。"),
-    MAX_ROUND_SECONDS * 1000,
-  );
+  timeoutId = window.setTimeout(() => cancel("已超过 60 秒。"), MAX_ROUND_SECONDS * 1000);
 }
 
 function stop(): void {
   const elapsed = (performance.now() - startedAt) / 1000;
   running = false;
   window.clearTimeout(timeoutId);
-  const signedError = elapsed - target;
-  const error = Math.abs(signedError);
-  const score = calculateScore(error, target);
-  audio.play(scoreToSound(score));
-  rounds += 1;
-  best = Math.max(best, score);
-  totalError += error;
+  hasPlayed = true;
+  history = addHistoryEntry(history, { target, actual: elapsed });
   setRunningUI(false);
   statusEl.textContent = "挑战完成";
   dialLabel.textContent = "实际用时";
-  dialCaption.textContent = "差了多少？看看你的成绩。";
+  dialCaption.textContent = "本轮结束。";
   renderDisplay(elapsed);
-  const position = getAccuracyPosition(signedError, target);
-  resultBody.innerHTML = `<div class="score-row"><div class="score">${score}<span>分</span></div><div class="verdict"><h3>${getVerdict(score)}</h3><p>${getTimingText(signedError)}</p></div></div><div class="result-details"><span>实际用时 <strong>${elapsed.toFixed(3)} s</strong></span><span>误差 <strong>${formatSignedError(signedError)}</strong></span></div><div class="accuracy-track" aria-hidden="true"><span class="accuracy-target"></span><span class="accuracy-point" style="left:${position}%"></span></div><div class="track-labels"><span>提前</span><span>目标 ${target} 秒</span><span>超时</span></div><p class="result-note">得分按相对误差计算，越接近目标，分数越高。</p>`;
-  bestEl.innerHTML = `${best}<span> 分</span>`;
-  averageEl.innerHTML = `${(totalError / rounds).toFixed(2)}<span> s</span>`;
-  countEl.innerHTML = `${rounds}<span> 次</span>`;
+  renderHistory();
+  audio.play("stop");
 }
 
 function cancel(message: string): void {
@@ -152,7 +163,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     audio.silence();
-    cancel("页面切换已暂停本轮，成绩不计入统计。回来后可以重新挑战。");
+    cancel("页面切换，本轮不计。");
   }
 });
 
@@ -166,3 +177,4 @@ soundToggle.addEventListener("click", () => {
 
 audio.updateToggle({ toggle: soundToggle, label: soundLabel });
 renderDisplay(target);
+renderHistory();

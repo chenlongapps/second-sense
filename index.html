@@ -24,8 +24,7 @@
           ><span>秒感<span class="brand-en">SECOND SENSE</span></span></a
         >
         <div class="header-controls">
-          <span class="header-note">读秒挑战 / TIME CHALLENGE</span
-          ><button
+          <button
             id="sound-toggle"
             class="sound-toggle"
             type="button"
@@ -45,71 +44,61 @@
       </header>
       <main>
         <div class="intro">
-          <p class="eyebrow">READY. SET. FEEL.</p>
           <h1>凭感觉，停在那一秒。</h1>
-          <p>选一个目标，心里读秒。到点就按下红色按钮。</p>
         </div>
-        <section class="machine" aria-label="读秒游戏">
-          <div class="machine-top">
-            <span class="small-label">选择目标</span>
-            <div class="target-options" role="group" aria-label="选择目标秒数">
-              <button type="button" class="target" data-seconds="3" aria-pressed="false">
-                3 秒</button
-              ><button type="button" class="target active" data-seconds="5" aria-pressed="true">
-                5 秒</button
-              ><button type="button" class="target" data-seconds="10" aria-pressed="false">
-                10 秒
-              </button>
-            </div>
+        <div class="play-layout">
+          <div class="play-main">
+            <section class="machine" aria-label="读秒游戏">
+              <div class="machine-top">
+                <span class="small-label">选择目标</span>
+                <div class="target-options" role="group" aria-label="选择目标秒数">
+                  <button type="button" class="target" data-seconds="3" aria-pressed="false">
+                    3 秒</button
+                  ><button type="button" class="target active" data-seconds="5" aria-pressed="true">
+                    5 秒</button
+                  ><button type="button" class="target" data-seconds="10" aria-pressed="false">
+                    10 秒
+                  </button>
+                </div>
+              </div>
+              <div class="display-housing" id="dial">
+                <div class="display-top">
+                  <span id="dial-label">目标时间</span
+                  ><span id="status" aria-live="polite">准备就绪</span>
+                </div>
+                <div
+                  class="digital-display"
+                  id="dial-number"
+                  role="img"
+                  aria-label="目标时间 5 秒"
+                ></div>
+                <div class="display-units" aria-hidden="true">
+                  <span>MIN</span><span>SEC</span><span>1/100</span>
+                </div>
+              </div>
+              <div class="control-area">
+                <p id="dial-caption" class="control-prompt">点击开始。</p>
+                <div class="button-base">
+                  <button type="button" id="action" class="action" aria-labelledby="action-label">
+                    <span class="button-cap"
+                      ><span id="action-glyph" aria-hidden="true">GO</span></span
+                    >
+                  </button>
+                </div>
+                <span id="action-label" class="action-label">开始挑战</span>
+                <p class="keyboard-hint">空格开始 / 停止</p>
+              </div>
+            </section>
+            <p id="notice" class="notice" role="status"></p>
           </div>
-          <div class="display-housing" id="dial">
-            <div class="display-top">
-              <span id="dial-label">目标时间</span><span id="status">准备就绪</span>
-            </div>
-            <div
-              class="digital-display"
-              id="dial-number"
-              role="img"
-              aria-label="目标时间 5 秒"
-            ></div>
-            <div class="display-units" aria-hidden="true">
-              <span>MIN</span><span>SEC</span><span>1/100</span>
-            </div>
-          </div>
-          <div class="control-area">
-            <p id="dial-caption" class="control-prompt">准备好了，就开始吧。</p>
-            <div class="button-base">
-              <button type="button" id="action" class="action" aria-labelledby="action-label">
-                <span class="button-cap"><span id="action-glyph" aria-hidden="true">GO</span></span>
-              </button>
-            </div>
-            <span id="action-label" class="action-label">开始挑战</span>
-            <p class="keyboard-hint"><kbd>SPACE</kbd> 或点击按钮 · 开始 / 停止</p>
-          </div>
-        </section>
-        <p id="notice" class="notice" role="status"></p>
-        <section class="result-card" aria-labelledby="result-heading">
-          <div class="result-head">
-            <h2 id="result-heading">本轮成绩</h2>
-            <span class="round-badge" id="round-badge">ROUND 01</span>
-          </div>
-          <div id="result-body" aria-live="polite" aria-atomic="true">
-            <div class="empty-result">
-              <span class="empty-score">— —</span>
-              <p>还没有成绩。你的第一轮会有多准？</p>
-            </div>
-          </div>
-        </section>
-        <section class="stats" aria-label="本次游戏统计">
-          <div><span class="stat-label">最高得分</span><strong id="best">—</strong></div>
-          <div><span class="stat-label">平均误差</span><strong id="average">—</strong></div>
-          <div>
-            <span class="stat-label">完成挑战</span><strong id="count">0<span> 次</span></strong>
-          </div>
-        </section>
-        <p class="game-note">计时中不显示时间 · 越接近目标，得分越高</p>
+          <aside class="history" aria-labelledby="history-title">
+            <h2 id="history-title">近五次记录</h2>
+            <p id="history-empty" class="history-empty">暂无记录</p>
+            <ol id="history-list" class="history-list"></ol>
+          </aside>
+        </div>
       </main>
-      <footer><span>把时间交给直觉。</span><span>SECOND SENSE / 01</span></footer>
+      <footer><span>SECOND SENSE / 01</span></footer>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

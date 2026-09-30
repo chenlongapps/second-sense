@@ -1,4 +1,4 @@
-export type SoundName = "select" | "start" | "stop" | "perfect" | "good" | "result";
+export type SoundName = "select" | "start" | "stop";
 
 type Cue = [frequency: number, offsetSeconds: number, durationSeconds: number, volume: number];
 
@@ -9,21 +9,6 @@ const CUES: Record<SoundName, Cue[]> = {
     [784, 0.06, 0.075, 0.045],
   ],
   stop: [[220, 0, 0.045, 0.04]],
-  perfect: [
-    [523.25, 0.09, 0.09, 0.04],
-    [659.25, 0.19, 0.09, 0.04],
-    [783.99, 0.29, 0.09, 0.04],
-    [1046.5, 0.4, 0.19, 0.04],
-  ],
-  good: [
-    [523.25, 0.09, 0.08, 0.04],
-    [659.25, 0.18, 0.08, 0.04],
-    [783.99, 0.28, 0.15, 0.04],
-  ],
-  result: [
-    [440, 0.09, 0.075, 0.035],
-    [349.23, 0.18, 0.12, 0.035],
-  ],
 };
 
 const STORAGE_KEY = "second-sense-sound";
@@ -109,10 +94,7 @@ export class GameAudio {
         if (!this.enabled || currentGeneration !== this.generation || context.state !== "running") {
           return;
         }
-        const notes =
-          name === "perfect" || name === "good" || name === "result"
-            ? [...CUES.stop, ...CUES[name]]
-            : CUES[name];
+        const notes = CUES[name];
         if (!notes) return;
         const now = context.currentTime;
         for (const [frequency, offset, duration, volume] of notes) {
@@ -147,10 +129,4 @@ export class GameAudio {
       // Audio availability must never interrupt the game.
     }
   }
-}
-
-export function scoreToSound(score: number): SoundName {
-  if (score === 100) return "perfect";
-  if (score >= 80) return "good";
-  return "result";
 }

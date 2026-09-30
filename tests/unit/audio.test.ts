@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GameAudio, scoreToSound } from "../../src/audio/synth";
-
-describe("scoreToSound", () => {
-  it("maps scores to legacy cues", () => {
-    expect(scoreToSound(100)).toBe("perfect");
-    expect(scoreToSound(85)).toBe("good");
-    expect(scoreToSound(40)).toBe("result");
-  });
-});
+import { GameAudio } from "../../src/audio/synth";
 
 describe("GameAudio preference", () => {
   it("defaults to on and round-trips off", () => {

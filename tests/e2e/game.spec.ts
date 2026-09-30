@@ -13,11 +13,14 @@ test("target switching, start/stop flow, and sound toggle", async ({ page }) => 
   await page.getByRole("button", { name: "开始挑战" }).click();
   await expect(page.locator("#status")).toHaveText("计时进行中");
   await expect(page.locator("#dial-number")).toHaveAttribute("aria-label", "计时中，时间已隐藏");
+  await expect(page.locator("body")).toHaveClass(/is-running/);
+  await expect(page.locator("#dial")).toHaveClass(/running/);
+  await expect(page.locator("#dial-caption")).toHaveText("计时中 · 凭感觉停止。");
 
   await page.keyboard.press("Space");
   await expect(page.locator("#status")).toHaveText("挑战完成");
-  await expect(page.locator(".score")).toBeVisible();
-  await expect(page.locator("#count")).toContainText("1");
+  await expect(page.locator("#dial-number")).toHaveAttribute("aria-label", /^\d+\.\d{2} 秒$/);
+  await expect(page.locator("body")).not.toHaveClass(/is-running/);
 
   const soundToggle = page.getByRole("button", { name: /音效/ });
   await soundToggle.click();
