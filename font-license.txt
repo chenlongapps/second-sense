@@ -1,0 +1,5 @@
+Zpix (最像素) by SolidZORO
+Source: https://github.com/SolidZORO/zpix-pixel-font
+Unmodified webfont from the official release.
+Personal and educational products are free. Commercial/business products require a separate license from the author.
+Contact: solidzoro@live.com
