@@ -1,6 +1,6 @@
 # 秒感 · 像素读秒挑战
 
-响应式像素风读秒游戏。Vite + TypeScript 构建，Cloudflare Workers Static Assets 部署。
+响应式像素风读秒游戏。Vite + TypeScript 构建，支持 GitHub Pages 和 Cloudflare Workers Static Assets 部署。
 
 ## 快速开始
 
@@ -34,7 +34,30 @@ npm run dev
 - `public/_headers`：缓存与安全头
 - `tests/unit`：Vitest
 - `tests/e2e`：Playwright
+- `.github/workflows/deploy-pages.yml`：GitHub Pages 自动部署
 - `wrangler.jsonc`：Cloudflare Workers 静态资源配置
+
+## 部署（GitHub Pages）
+
+1. 将项目推送到 GitHub 仓库。
+2. 打开仓库 **Settings → Pages → Build and deployment**，将 **Source** 设为 **GitHub Actions**。
+3. 推送代码到 `main` 分支，或在 **Actions → Deploy to GitHub Pages → Run workflow** 中选择 `main` 手动触发部署。
+4. 工作流会安装依赖、运行 `npm run check`、构建并发布 `dist/`。成功后可从部署任务的环境链接或 **Settings → Pages** 打开站点。
+
+本仓库的默认访问地址为 https://chenlongapps.github.io/second-sense/ 。Fork 后的地址通常为 `https://<用户名>.github.io/<仓库名>/`。
+
+工作流使用 GitHub 自动提供的 `GITHUB_TOKEN`，无需额外配置部署密钥。默认部署分支为 `main`；如果使用其他分支，请修改工作流中的 `on.push.branches`，并确保 `github-pages` 环境允许该分支部署。
+
+构建时会根据 Pages 配置自动设置 Vite 的 `base`，兼容仓库子路径、`<用户名>.github.io` 根站点和自定义域名，脚本、样式及字体路径也会相应处理。
+
+本地验证仓库子路径部署（将 `second-sense` 替换为实际仓库名）：
+
+```sh
+npm run build -- --base=/second-sense/
+npx vite preview --base=/second-sense/
+```
+
+访问 http://localhost:4173/second-sense/ 。
 
 ## 部署（Cloudflare Workers Static Assets）
 
