@@ -20,6 +20,14 @@
 - Playwright 默认把 `locale` 设为 `zh-CN`，中文文案断言依赖它；语言检测、回退和切换在 `tests/e2e/locale.spec.ts` 里用 `test.use({ locale })` 覆盖。修改界面文案时同步更新 `tests/unit/i18n.test.ts`（键名、占位符、各语言条数一致）。
 - `npm run deploy` = 构建 + `wrangler deploy`。需要先运行 `npx wrangler login`。通过 Cloudflare Workers Static Assets 提供 `dist/`（配置见 `wrangler.jsonc`，`not_found_handling: 404-page`）。
 
+## 文档与 README
+
+- 仓库维护两份 README：`README.md`（简体中文，GitHub 默认展示）和 `README.en.md`（英语）。任何改动——标题、简介、徽标、示意图、链接、命令表、部署与多语言说明——都必须同步改两份，不能只改一份。
+- 两份顶部都有语言互链（`[简体中文](README.md) · [English](README.en.md)`）。调整章节标题时同步更新互相引用的锚点：i18n 徽标在中文版指向 `#多语言`，英文版指向 `#internationalization`。
+- README 素材统一放 `docs/`（如 `docs/preview.webp`），两份用同一路径引用；换图时检查两份的图片说明和链接是否仍然准确。
+- README 也参与 `prettier --check .`：改完运行 `npx prettier --write README.md README.en.md`，不要手改徽标与表格的换行。
+- 代码许可是 MIT（`LICENSE`，版权归 chenlongapps）；随仓库分发的 `public/zpix.woff2` 字体不在 MIT 范围内。改动许可信息时同步更新 `LICENSE`、两份 README 的「许可」章节与徽标，不要把整仓库笼统写成"全部 MIT"。
+
 ## 约定与注意事项
 
 - TypeScript 严格模式，并启用 `noUnusedLocals`/`noUnusedParameters`；`moduleResolution: bundler`，`allowImportingTsExtensions`。ESLint 使用严格的 `typescript-eslint` 规则，仅关闭 `no-non-null-assertion`。Prettier：行宽 100、双引号、尾随逗号。

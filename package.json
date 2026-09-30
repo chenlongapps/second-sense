@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "秒感 · 像素读秒挑战 — pixel time-feel game",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=20"
