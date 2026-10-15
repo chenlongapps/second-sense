@@ -6,6 +6,7 @@ export const zhCN: Messages = {
     description: "红色数码管、像素按钮。凭感觉挑战 3、5、10 秒，在恰好的那一刻停止。",
   },
   brand: { label: "秒感首页" },
+  github: { label: "在 GitHub 上查看源码" },
   locale: {
     current: "当前语言：{name}，点击切换",
     menu: "语言列表",

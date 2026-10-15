@@ -6,6 +6,7 @@ export const zhTW: Messages = {
     description: "紅色數位管、像素按鈕。憑感覺挑戰 3、5、10 秒，在剛好的那一刻停下來。",
   },
   brand: { label: "秒感首頁" },
+  github: { label: "在 GitHub 上檢視原始碼" },
   locale: {
     current: "目前語言：{name}，點擊切換",
     menu: "語言清單",

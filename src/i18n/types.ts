@@ -18,6 +18,7 @@ export type EasterEggCopy = Record<EasterEggKind, { title: string; messages: str
 export interface Messages {
   meta: { title: string; description: string };
   brand: { label: string };
+  github: { label: string };
   locale: { current: string; menu: string };
   sound: {
     labelOn: string;

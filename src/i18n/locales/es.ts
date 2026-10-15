@@ -7,6 +7,7 @@ export const es: Messages = {
       "Tubos digitales rojos y botones de píxel. Confía en tu instinto durante 3, 5 o 10 segundos y detente en el momento justo.",
   },
   brand: { label: "Inicio de Second Sense" },
+  github: { label: "Ver el código en GitHub" },
   locale: {
     current: "Idioma actual: {name}, haz clic para cambiarlo",
     menu: "Lista de idiomas",

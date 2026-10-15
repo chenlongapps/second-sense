@@ -1115,6 +1115,36 @@ footer {
 .sound-toggle:disabled {
   opacity: 0.6;
 }
+/* 头部 GitHub 入口：沿用音效按钮的像素描边与位移反馈。 */
+.github-link {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--ink);
+  background: #f9fafb;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 #aab2bc;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease,
+    box-shadow 0.12s ease;
+}
+.github-link:hover {
+  background: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #aab2bc;
+}
+.github-link:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #aab2bc;
+}
+.github-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
 @media (max-width: 700px) {
   .header-controls {
     gap: 12px;
@@ -1123,7 +1153,30 @@ footer {
     display: none;
   }
 }
+/* 手机宽度：音效按钮只留图标，让语言、音效、GitHub 三个控件并排放下。 */
+@media (max-width: 480px) {
+  .header-controls {
+    gap: 10px;
+  }
+  .sound-toggle {
+    padding: 8px;
+  }
+  #sound-label {
+    display: none;
+  }
+  .github-link {
+    width: 36px;
+    height: 36px;
+  }
+}
 @media (max-width: 360px) {
+  .brand-en {
+    display: none;
+  }
+  .github-link {
+    width: 34px;
+    height: 34px;
+  }
   .sound-toggle {
     padding: 8px;
     font-size: 14px;

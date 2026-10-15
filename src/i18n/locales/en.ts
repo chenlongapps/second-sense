@@ -7,6 +7,7 @@ export const en: Messages = {
       "Red digital tubes, pixel buttons. Trust your feel for 3, 5 or 10 seconds and stop at the exact moment.",
   },
   brand: { label: "Second Sense home" },
+  github: { label: "View source on GitHub" },
   locale: {
     current: "Current language: {name}, click to switch",
     menu: "Language list",

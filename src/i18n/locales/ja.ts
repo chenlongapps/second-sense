@@ -7,6 +7,7 @@ export const ja: Messages = {
       "赤いデジタル管、ピクセルボタン。勘を信じて 3・5・10 秒に挑戦し、ちょうどの瞬間に止めよう。",
   },
   brand: { label: "秒感のホーム" },
+  github: { label: "GitHub でソースコードを見る" },
   locale: {
     current: "現在の言語：{name}、クリックで切り替え",
     menu: "言語リスト",

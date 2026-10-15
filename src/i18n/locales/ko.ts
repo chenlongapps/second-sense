@@ -6,6 +6,7 @@ export const ko: Messages = {
     description: "붉은 디지털 튜브, 픽셀 버튼. 감각으로 3·5·10초에 도전하고 딱 그 순간에 멈추세요.",
   },
   brand: { label: "초감 홈" },
+  github: { label: "GitHub에서 소스 코드 보기" },
   locale: {
     current: "현재 언어: {name}, 변경하려면 클릭",
     menu: "언어 목록",
